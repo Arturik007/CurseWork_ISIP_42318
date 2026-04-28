@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Отчёты{% endblock %}
+{% block content %}
+<h1>Отчёты</h1>
+<ul class="card" style="list-style:none;padding:1rem 1.25rem;margin:0;">
+  <li style="margin-bottom:0.75rem;"><a href="{{ url_for('report_stock_date') }}">Остатки на дату</a> — срез количества по каждой позиции.</li>
+  <li style="margin-bottom:0.75rem;"><a href="{{ url_for('report_turnover') }}">Оборотная ведомость</a> — приход, расход и остаток за период.</li>
+  <li><a href="{{ url_for('report_movement') }}">Движение товара</a> — проводки по выбранной номенклатуре.</li>
+</ul>
+{% endblock %}

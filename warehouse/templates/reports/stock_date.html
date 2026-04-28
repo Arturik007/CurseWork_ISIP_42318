@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Остатки на дату{% endblock %}
+{% block content %}
+<h1>Остатки на дату</h1>
+<form method="post" class="card form-grid" style="max-width:none;flex-direction:row;flex-wrap:wrap;align-items:end;">
+  <label class="field">
+    Дата
+    <input type="date" name="as_of" required value="{{ as_of.isoformat() if as_of else today_iso }}">
+  </label>
+  <button type="submit" class="btn btn-primary">Сформировать</button>
+</form>
+
+{% if as_of %}
+<div class="toolbar no-print">
+  <a class="btn btn-secondary" href="{{ url_for('report_stock_date_export', as_of=as_of.isoformat()) }}">Скачать CSV</a>
+</div>
+<div class="filter-row no-print">
+  <input type="search" data-table-filter="tbl-sd" placeholder="Фильтр…">
+</div>
+<div class="wms-scroll-table">
+  <table class="wms-table data-table" id="tbl-sd">
+    <thead>
+      <tr>
+        <th data-sort="str">Артикул</th>
+        <th data-sort="str">Наименование</th>
+        <th data-sort="str">Ед.</th>
+        <th data-sort="num">Остаток на {{ as_of }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p, qty in rows %}
+      <tr>
+        <td>{{ p.sku }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.unit }}</td>
+        <td>{{ qty }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+<p class="hint no-print"><a href="{{ url_for('report_index') }}">Все отчёты</a> · <a href="{{ url_for('report_turnover') }}">Оборотная ведомость</a> · <a href="{{ url_for('report_movement') }}">Движение товара</a></p>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Приход' if doc_type == 'incoming' else 'Расход' }} — новый{% endblock %}
+{% block content %}
+<h1>Новая {{ 'приходная' if doc_type == 'incoming' else 'расходная' }} накладная</h1>
+{% set fd = form_data or {} %}
+<form method="post" class="card form-grid" style="max-width:none;">
+  <label class="field">
+    Дата документа
+    <input type="date" name="doc_date" required value="{{ fd.get('doc_date', today_iso) }}">
+  </label>
+  <label class="field">
+    Комментарий
+    <textarea name="notes" rows="3" maxlength="2000">{{ fd.get('notes', '') }}</textarea>
+  </label>
+  <div class="row-actions">
+    <button type="submit" class="btn btn-primary">Создать черновик</button>
+    <a class="btn btn-secondary" href="{{ url_for('documents_list') }}">Отмена</a>
+  </div>
+</form>
+{% endblock %}

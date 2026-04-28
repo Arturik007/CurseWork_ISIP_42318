@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход — Склад WMS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="wms-login-page login-page">
+  <div class="wms-login-card login-card">
+    <div class="wms-login-card__logo" aria-hidden="true"><span>WMS</span></div>
+    <h1 class="wms-login-card__title">Склад WMS</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash-list wms-flash-list">
+          {% for cat, msg in messages %}
+            <li class="flash-{{ cat }} wms-flash-list__item">{{ msg }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form method="post" class="wms-form form-grid" action="{{ url_for('login') }}">
+      <label class="wms-field field">
+        Логин
+        <input class="wms-field__control" type="text" name="username" required autocomplete="username" autofocus>
+      </label>
+      <label class="wms-field field">
+        Пароль
+        <input class="wms-field__control" type="password" name="password" required autocomplete="current-password">
+      </label>
+      <label class="wms-field field hint">
+        <input type="checkbox" name="remember" value="1"> Запомнить на этом устройстве
+      </label>
+      <button type="submit" class="wms-btn wms-btn--primary btn btn-primary">Войти</button>
+    </form>
+    
+  </div>
+</body>
+</html>

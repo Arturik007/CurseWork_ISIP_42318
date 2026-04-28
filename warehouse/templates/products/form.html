@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование' if product else 'Новый товар' }}{% endblock %}
+{% block content %}
+<h1>{{ 'Редактирование товара' if product else 'Новый товар' }}</h1>
+<form method="post" class="card form-grid" style="max-width:none;">
+  {% set fd = form_data or {} %}
+  <label class="field">
+    Артикул (уникальный)
+    <input type="text" name="sku" required value="{{ fd.get('sku', product.sku if product else '') }}" maxlength="64">
+  </label>
+  <label class="field">
+    Наименование
+    <input type="text" name="name" required value="{{ fd.get('name', product.name if product else '') }}" maxlength="255">
+  </label>
+  <label class="field">
+    Единица измерения
+    <input type="text" name="unit" value="{{ fd.get('unit', product.unit if product else 'шт') }}" maxlength="32">
+  </label>
+  <label class="field">
+    Категория
+    <input type="text" name="category" value="{{ fd.get('category', product.category if product else '') }}" maxlength="128">
+  </label>
+  <label class="field">
+    Минимальный остаток
+    <input type="text" name="min_stock" inputmode="decimal" value="{{ fd.get('min_stock', product.min_stock if product else '0') }}">
+  </label>
+  <div class="row-actions">
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a class="btn btn-secondary" href="{{ url_for('products_list') }}">Отмена</a>
+  </div>
+</form>
+{% endblock %}

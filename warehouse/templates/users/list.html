@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Пользователи{% endblock %}
+{% block content %}
+<h1>Пользователи</h1>
+<div class="toolbar">
+  <a class="btn btn-primary" href="{{ url_for('users_new') }}">Новый пользователь</a>
+</div>
+<div class="filter-row no-print">
+  <input type="search" data-table-filter="tbl-users" placeholder="Фильтр…">
+</div>
+<div class="table-wrap card" style="padding:0;border:none;">
+  <table class="data-table" id="tbl-users">
+    <thead>
+      <tr>
+        <th data-sort="str">Логин</th>
+        <th data-sort="str">Роль</th>
+        <th data-sort="str">Активен</th>
+        <th data-sort="none">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.username }}</td>
+        <td>{{ ROLE_LABELS.get(u.role, u.role) }}</td>
+        <td>{{ 'Да' if u.is_active else 'Нет' }}</td>
+        <td><a class="btn btn-secondary" href="{{ url_for('users_edit', uid=u.id) }}">Изменить</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

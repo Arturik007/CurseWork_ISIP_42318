@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ document.number }}{% endblock %}
+{% block content %}
+<div class="no-print toolbar">
+  <a class="btn btn-secondary" href="{{ url_for('documents_list') }}">← К списку</a>
+  <button type="button" class="btn btn-secondary" onclick="window.print()">Печать</button>
+  {% if document.status == 'draft' and current_user.role in ('admin', 'keeper') %}
+  <a class="btn btn-primary" href="{{ url_for('documents_edit', did=document.id) }}">Редактировать</a>
+  {% endif %}
+</div>
+
+<div class="card" id="print-area">
+  <h1 style="margin-top:0;">{{ document.number }}</h1>
+  <p>
+    <strong>{{ 'Приходная накладная' if document.doc_type == 'incoming' else 'Расходная накладная' }}</strong><br>
+    Дата: {{ document.doc_date }}<br>
+    Статус:
+    {% if document.status == 'draft' %}<span class="badge badge-draft">Черновик</span>
+    {% elif document.status == 'posted' %}<span class="badge badge-posted">Проведён</span>
+    {% else %}<span class="badge badge-cancelled">Отменён</span>{% endif %}
+  </p>
+  {% if document.notes %}
+  <p><strong>Комментарий:</strong> {{ document.notes }}</p>
+  {% endif %}
+  <p class="hint">Автор: {{ document.author.username if document.author else '—' }}</p>
+
+  <table class="data-table" style="margin-top:1rem;">
+    <thead>
+      <tr>
+        <th data-sort="none">№</th>
+        <th data-sort="none">Артикул</th>
+        <th data-sort="none">Наименование</th>
+        <th data-sort="none">Кол-во</th>
+        {% if document.status == 'draft' %}
+        <th data-sort="none" class="no-print">Остаток сейчас</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in document.lines %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ line.product.sku }}</td>
+        <td>{{ line.product.name }}</td>
+        <td>{{ line.quantity }} {{ line.product.unit }}</td>
+        {% if document.status == 'draft' %}
+        <td class="no-print">{{ balances.get(line.product_id, 0) }}</td>
+        {% endif %}
+      </tr>
+      {% else %}
+      <tr><td colspan="5">Нет строк</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if current_user.role in ('admin', 'keeper') %}
+<div class="toolbar no-print" style="margin-top:1rem;">
+  {% if document.status == 'draft' %}
+  <form method="post" action="{{ url_for('documents_post', did=document.id) }}" style="display:inline;" onsubmit="return confirm('Провести документ?');">
+    <button type="submit" class="btn btn-primary">Провести</button>
+  </form>
+  {% elif document.status == 'posted' %}
+  <form method="post" action="{{ url_for('documents_cancel', did=document.id) }}" style="display:inline;" onsubmit="return confirm('Отменить проведение? Остатки будут скорректированы.');">
+    <button type="submit" class="btn btn-danger">Отменить проведение</button>
+  </form>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

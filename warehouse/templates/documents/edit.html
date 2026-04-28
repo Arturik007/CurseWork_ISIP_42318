@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{{ document.number }}{% endblock %}
+{% block content %}
+<h1>{{ document.number }} <span class="badge badge-draft">Черновик</span></h1>
+<p>{{ 'Приходная' if document.doc_type == 'incoming' else 'Расходная' }} накладная</p>
+
+<form method="post" class="card form-grid" style="max-width:none;margin-bottom:1rem;">
+  <label class="field">
+    Дата документа
+    <input type="date" name="doc_date" required value="{{ document.doc_date.isoformat() }}">
+  </label>
+  <label class="field">
+    Комментарий
+    <textarea name="notes" rows="2">{{ document.notes }}</textarea>
+  </label>
+  <button type="submit" class="btn btn-secondary">Сохранить шапку</button>
+</form>
+
+<h2>Строки</h2>
+<div class="card">
+  <form method="post" action="{{ url_for('documents_line_add', did=document.id) }}" class="form-grid" style="max-width:none;display:grid;grid-template-columns:1fr 8rem auto;align-items:end;gap:0.75rem;">
+    <label class="field">
+      Товар
+      <select name="product_id" required>
+        <option value="">— выберите —</option>
+        {% for p in products %}
+        <option value="{{ p.id }}">{{ p.sku }} — {{ p.name }} (ост: {{ product_balances.get(p.id, 0) }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      Кол-во
+      <input type="text" name="quantity" inputmode="decimal" required placeholder="0">
+    </label>
+    <button type="submit" class="btn btn-primary">Добавить</button>
+  </form>
+  <p class="hint">Для расхода при проведении проверяется остаток; списать больше, чем есть, нельзя.</p>
+</div>
+
+<div class="table-wrap card" style="padding:0;margin-top:1rem;border:none;">
+  <table class="data-table" id="tbl-lines">
+    <thead>
+      <tr>
+        <th data-sort="str">Артикул</th>
+        <th data-sort="str">Товар</th>
+        <th data-sort="num">Количество</th>
+        <th data-sort="none" class="no-print">Удалить</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in document.lines %}
+      <tr>
+        <td>{{ line.product.sku }}</td>
+        <td>{{ line.product.name }}</td>
+        <td>{{ line.quantity }}</td>
+        <td class="no-print">
+          <form method="post" action="{{ url_for('documents_line_delete', did=document.id, lid=line.id) }}" onsubmit="return confirm('Удалить строку?');">
+            <button type="submit" class="btn btn-danger">✕</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="empty">Добавьте позиции.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="toolbar no-print" style="margin-top:1rem;">
+  <form method="post" action="{{ url_for('documents_post', did=document.id) }}" style="display:inline;" onsubmit="return confirm('Провести документ? Остатки изменятся.');">
+    <button type="submit" class="btn btn-primary">Провести</button>
+  </form>
+  <a class="btn btn-secondary" href="{{ url_for('documents_view', did=document.id) }}">Просмотр</a>
+  <a class="btn btn-secondary" href="{{ url_for('documents_list') }}">К списку</a>
+</div>
+{% endblock %}

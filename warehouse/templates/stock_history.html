@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}История движений{% endblock %}
+{% block content %}
+<h1>История движений</h1>
+<div class="toolbar">
+  <form method="get" class="row-actions">
+    <input type="search" name="q" value="{{ search_q or '' }}" placeholder="Артикул или название" style="padding:0.45rem 0.55rem;border:1px solid var(--border);border-radius:8px;max-width:16rem;">
+    <button type="submit" class="btn btn-secondary">Фильтр</button>
+  </form>
+  <a class="btn btn-secondary" href="{{ url_for('stock_view') }}">К остаткам</a>
+</div>
+<div class="filter-row no-print">
+  <input type="search" data-table-filter="tbl-hist" placeholder="Быстрый фильтр по строке…">
+</div>
+<div class="table-wrap card" style="padding:0;border:none;">
+  <table class="data-table" id="tbl-hist">
+    <thead>
+      <tr>
+        <th data-sort="str">Дата</th>
+        <th data-sort="str">Документ</th>
+        <th data-sort="str">Артикул</th>
+        <th data-sort="str">Товар</th>
+        <th data-sort="num">Изменение</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in entries %}
+      <tr>
+        <td>{{ e.movement_date }}</td>
+        <td><a href="{{ url_for('documents_view', did=e.document_id) }}">{{ e.document.number }}</a></td>
+        <td>{{ e.product.sku }}</td>
+        <td>{{ e.product.name }}</td>
+        <td>{% if e.quantity_signed > 0 %}+{% endif %}{{ e.quantity_signed }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="empty">Нет движений (показано до 500 записей).</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

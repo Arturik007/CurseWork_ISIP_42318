@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Остатки{% endblock %}
+{% block content %}
+<h1>Текущие остатки</h1>
+<p class="hint"><a href="{{ url_for('stock_history') }}">История движений</a></p>
+<div class="filter-row no-print">
+  <input type="search" data-table-filter="tbl-stock" placeholder="Фильтр по таблице…">
+</div>
+<div class="table-wrap card" style="padding:0;border:none;">
+  <table class="data-table" id="tbl-stock">
+    <thead>
+      <tr>
+        <th data-sort="str">Артикул</th>
+        <th data-sort="str">Наименование</th>
+        <th data-sort="str">Ед.</th>
+        <th data-sort="num">Остаток</th>
+        <th data-sort="num">Мин.</th>
+        <th data-sort="str">Статус</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p, qty in rows %}
+      <tr>
+        <td>{{ p.sku }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.unit }}</td>
+        <td>{{ qty }}</td>
+        <td>{{ p.min_stock }}</td>
+        <td>
+          {% if qty < 0 %}
+          <span class="badge badge-neg">Отрицательный</span>
+          {% elif qty < p.min_stock %}
+          <span class="badge badge-warn">Ниже минимума</span>
+          {% else %}
+          <span class="badge badge-posted">Ок</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">Нет данных — добавьте товары и проведите приход.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

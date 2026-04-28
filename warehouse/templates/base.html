@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Склад{% endblock %} — WMS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  {% if current_user.is_authenticated %}
+  <div class="wms-layout">
+    <header class="wms-layout__header wms-header">
+      <button type="button" class="wms-header__menu-btn no-print" data-nav-toggle aria-label="Открыть меню">☰</button>
+      <a class="wms-header__brand" href="{{ url_for('dashboard') }}">
+        <span class="wms-header__logo" aria-hidden="true">WMS</span>
+        <span class="wms-header__title">Склад</span>
+      </a>
+      <div class="wms-header__spacer" aria-hidden="true"></div>
+      <div class="wms-header__user no-print">
+        <span class="wms-header__user-name">{{ current_user.username }}</span>
+        <span class="wms-header__user-role">{{ ROLE_LABELS.get(current_user.role, current_user.role) }}</span>
+        <a class="btn btn-secondary" href="{{ url_for('logout') }}">Выход</a>
+      </div>
+    </header>
+    <div class="wms-layout__body">
+      <aside class="wms-sidebar no-print" data-nav-main aria-label="Разделы">
+        <nav class="wms-sidebar__nav">
+          {% set ep = request.endpoint or '' %}
+          <a href="{{ url_for('dashboard') }}" class="wms-sidebar__link {{ 'wms-sidebar__link--active is-active' if ep == 'dashboard' else '' }}">
+            <span class="wms-sidebar__icon" aria-hidden="true">⌂</span> Главная
+          </a>
+          <a href="{{ url_for('products_list') }}" class="wms-sidebar__link {{ 'wms-sidebar__link--active is-active' if ep and ep.startswith('products') else '' }}">
+            <span class="wms-sidebar__icon" aria-hidden="true">▤</span> Номенклатура
+          </a>
+          <a href="{{ url_for('stock_view') }}" class="wms-sidebar__link {{ 'wms-sidebar__link--active is-active' if ep in ('stock_view', 'stock_history') else '' }}">
+            <span class="wms-sidebar__icon" aria-hidden="true">▦</span> Остатки
+          </a>
+          {% if current_user.role in ('admin', 'keeper') %}
+          <a href="{{ url_for('documents_list') }}" class="wms-sidebar__link {{ 'wms-sidebar__link--active is-active' if ep and ep.startswith('documents') else '' }}">
+            <span class="wms-sidebar__icon" aria-hidden="true">📋</span> Документы
+          </a>
+          {% else %}
+          <a href="{{ url_for('documents_list') }}" class="wms-sidebar__link {{ 'wms-sidebar__link--active is-active' if ep == 'documents_list' or ep == 'documents_view' else '' }}">
+            <span class="wms-sidebar__icon" aria-hidden="true">📋</span> Документы
+          </a>
+          {% endif %}
+          <a href="{{ url_for('report_index') }}" class="wms-sidebar__link {{ 'wms-sidebar__link--active is-active' if ep and ep.startswith('report') else '' }}">
+            <span class="wms-sidebar__icon" aria-hidden="true">📊</span> Отчёты
+          </a>
+          <a href="{{ url_for('analytics') }}" class="wms-sidebar__link {{ 'wms-sidebar__link--active is-active' if ep == 'analytics' else '' }}">
+            <span class="wms-sidebar__icon" aria-hidden="true">📈</span> Аналитика
+          </a>
+          {% if current_user.role == 'admin' %}
+          <a href="{{ url_for('users_list') }}" class="wms-sidebar__link {{ 'wms-sidebar__link--active is-active' if ep and ep.startswith('users') else '' }}">
+            <span class="wms-sidebar__icon" aria-hidden="true">👤</span> Пользователи
+          </a>
+          <a href="{{ url_for('settings') }}" class="wms-sidebar__link {{ 'wms-sidebar__link--active is-active' if ep == 'settings' or ep == 'backup_db' else '' }}">
+            <span class="wms-sidebar__icon" aria-hidden="true">⚙</span> Настройки
+          </a>
+          {% endif %}
+        </nav>
+      </aside>
+      <div class="wms-layout__content">
+        <main class="wms-main">
+  {% endif %}
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <ul class="flash-list wms-flash-list">
+                {% for cat, msg in messages %}
+                  <li class="flash-{{ cat }} wms-flash-list__item">{{ msg }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endwith %}
+          {% block content %}{% endblock %}
+  {% if current_user.is_authenticated %}
+        </main>
+        <footer class="wms-footer no-print">
+          <p>Склад WMS <span class="wms-footer__ver">v{{ wms_version }}</span> · локальное развёртывание · © {{ now_year }}</p>
+        </footer>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/tables.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Аналитика{% endblock %}
+{% block content %}
+<h1>Аналитика</h1>
+
+<div class="card">
+  <h2 style="margin-top:0;">График движения по дням</h2>
+  <p class="hint">Сумма проводок (+ приход, − расход) по дате движения для выбранного товара.</p>
+  <div class="form-grid" style="max-width:none;display:flex;flex-wrap:wrap;gap:0.75rem;align-items:end;">
+    <label class="field">
+      Товар
+      <select id="chart-product">
+        <option value="">—</option>
+        {% for p in products %}
+        <option value="{{ p.id }}">{{ p.sku }} — {{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="button" class="btn btn-primary" id="btn-chart">Обновить</button>
+  </div>
+  <div class="chart-wrap">
+    <canvas id="movChart" width="800" height="220"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">ABC по объёму движения</h2>
+  
+  <div class="form-grid" style="max-width:none;display:flex;flex-wrap:wrap;gap:0.75rem;align-items:end;">
+    <label class="field">
+      С даты
+      <input type="date" id="abc-from" value="{{ today_iso }}">
+    </label>
+    <label class="field">
+      По дату
+      <input type="date" id="abc-to" value="{{ today_iso }}">
+    </label>
+    <button type="button" class="btn btn-primary" id="btn-abc">Рассчитать</button>
+  </div>
+  <div class="table-wrap" style="margin-top:1rem;border:1px solid var(--border);border-radius:10px;">
+    <table class="data-table" id="tbl-abc">
+      <thead>
+        <tr>
+          <th data-sort="str">Артикул</th>
+          <th data-sort="str">Наименование</th>
+          <th data-sort="num">Оборот (сумм. |Δ|)</th>
+          <th data-sort="num">Доля, %</th>
+          <th data-sort="num">Накопл., %</th>
+          <th data-sort="str">Класс</th>
+        </tr>
+      </thead>
+      <tbody id="abc-body">
+        <tr><td colspan="6" class="empty">Нажмите «Рассчитать».</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script>
+  document.body.setAttribute("data-movement-api", "{{ url_for('api_movement_chart') }}");
+  document.body.setAttribute("data-abc-api", "{{ url_for('api_abc') }}");
+</script>
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

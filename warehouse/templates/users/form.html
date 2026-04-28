@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Пользователь' if user else 'Новый пользователь' }}{% endblock %}
+{% block content %}
+<h1>{{ 'Редактирование: ' ~ user.username if user else 'Новый пользователь' }}</h1>
+{% set fd = form_data or {} %}
+<form method="post" class="card form-grid" style="max-width:none;">
+  {% if not user %}
+  <label class="field">
+    Логин
+    <input type="text" name="username" required value="{{ fd.get('username', '') }}" autocomplete="username" minlength="2">
+  </label>
+  <label class="field">
+    Пароль
+    <input type="password" name="password" required minlength="4" autocomplete="new-password">
+  </label>
+  {% else %}
+  <label class="field">
+    Новый пароль (оставьте пустым, чтобы не менять)
+    <input type="password" name="password" minlength="4" autocomplete="new-password">
+  </label>
+  <label class="field hint">
+    <input type="checkbox" name="is_active" value="1" {{ 'checked' if user.is_active else '' }}> Активен
+  </label>
+  {% endif %}
+  <label class="field">
+    Роль
+    <select name="role">
+      {% set cur = user.role if user else (fd.get('role') or 'keeper') %}
+      {% for r in roles %}
+      <option value="{{ r }}" {% if r == cur %}selected{% endif %}>{{ ROLE_LABELS.get(r, r) }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <div class="row-actions">
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a class="btn btn-secondary" href="{{ url_for('users_list') }}">К списку</a>
+  </div>
+</form>
+{% endblock %}

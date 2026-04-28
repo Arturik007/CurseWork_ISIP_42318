@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Номенклатура{% endblock %}
+{% block content %}
+{# Пример BEM-страницы: wms-page — блок; __header — шапка с действиями #}
+<section class="wms-page" aria-labelledby="page-products-title">
+  <header class="wms-page__header">
+    <div>
+      <h1 class="wms-page-title" id="page-products-title">Номенклатура</h1>
+    </div>
+  </header>
+
+  <div class="wms-toolbar toolbar">
+    {% if current_user.role in ('admin', 'keeper') %}
+    <a class="wms-btn wms-btn--primary btn btn-primary" href="{{ url_for('products_new') }}">Новый товар</a>
+    {% endif %}
+    <form method="get" action="{{ url_for('products_list') }}" class="wms-row-actions row-actions">
+      <input type="search" name="q" value="{{ search_q or '' }}" placeholder="Поиск по артикулу или названию" class="filter-row" style="margin:0;max-width:16rem;">
+      <button type="submit" class="wms-btn wms-btn--secondary btn btn-secondary">Найти</button>
+    </form>
+  </div>
+
+  <div class="filter-row no-print">
+    <input type="search" data-table-filter="tbl-products" placeholder="Фильтр по таблице…" aria-label="Фильтр по строкам">
+  </div>
+
+  <div class="wms-scroll-table">
+    <table class="wms-table data-table" id="tbl-products">
+      <thead>
+        <tr>
+          <th data-sort="str">Артикул</th>
+          <th data-sort="str">Наименование</th>
+          <th data-sort="str">Ед.</th>
+          <th data-sort="str">Категория</th>
+          <th data-sort="num">Мин. остаток</th>
+          <th data-sort="num">Текущий остаток</th>
+          <th data-sort="none" class="no-print">Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td><code style="background:transparent;border:none;padding:0;">{{ p.sku }}</code></td>
+          <td>{{ p.name }}</td>
+          <td>{{ p.unit }}</td>
+          <td>{{ p.category or '—' }}</td>
+          <td>{{ p.min_stock }}</td>
+          <td>{{ balances.get(p.id, 0) }}</td>
+          <td class="no-print wms-row-actions row-actions">
+            {% if current_user.role in ('admin', 'keeper') %}
+            <a class="wms-btn wms-btn--secondary btn btn-secondary" href="{{ url_for('products_edit', pid=p.id) }}">Изменить</a>
+            <form method="post" action="{{ url_for('products_delete', pid=p.id) }}" style="display:inline;" onsubmit="return confirm('Удалить товар {{ p.sku }}?');">
+              <button type="submit" class="wms-btn wms-btn--danger btn btn-danger">Удалить</button>
+            </form>
+            {% else %}
+            —
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="wms-empty empty">Нет товаров. {% if current_user.role in ('admin', 'keeper') %}<a href="{{ url_for('products_new') }}">Добавить</a>{% endif %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

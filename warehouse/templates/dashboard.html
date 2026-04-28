@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<h1 class="wms-page-title">Панель</h1>
+
+<section class="wms-kpi-grid" aria-label="Ключевые показатели">
+  <article class="wms-kpi-card">
+    <p class="wms-kpi-card__label">Черновики документов</p>
+    <p class="wms-kpi-card__value wms-kpi-card__value--warning">{{ draft_count }}</p>
+    {% if current_user.role in ('admin', 'keeper') %}
+    <div class="wms-quick-actions">
+      <a class="wms-btn wms-btn--primary btn btn-primary" href="{{ url_for('documents_incoming_new') }}">Новый приход</a>
+      <a class="wms-btn wms-btn--secondary btn btn-secondary" href="{{ url_for('documents_outgoing_new') }}">Новый расход</a>
+    </div>
+    {% endif %}
+  </article>
+  <article class="wms-kpi-card">
+    <p class="wms-kpi-card__label">Ниже минимального остатка</p>
+    <p class="wms-kpi-card__value {% if low_stock|length > 0 %}wms-kpi-card__value--warning{% else %}wms-kpi-card__value--success{% endif %}">{{ low_stock|length }}</p>
+  </article>
+  <article class="wms-kpi-card">
+    <p class="wms-kpi-card__label">Отрицательный остаток</p>
+    <p class="wms-kpi-card__value {% if negative|length > 0 %}wms-kpi-card__value--danger{% else %}wms-kpi-card__value--success{% endif %}">{{ negative|length }}</p>
+  </article>
+  <article class="wms-kpi-card">
+    <p class="wms-kpi-card__label">Быстрые ссылки</p>
+    <p class="wms-kpi-card__value" style="font-size:1rem;font-weight:500;line-height:1.4;">
+      <a href="{{ url_for('stock_view') }}">Остатки</a> ·
+      <a href="{{ url_for('report_index') }}">Отчёты</a>
+      {% if current_user.role in ('admin', 'keeper') %} · <a href="{{ url_for('products_list') }}">Номенклатура</a>{% endif %}
+    </p>
+  </article>
+</section>
+
+<div class="wms-card card">
+  
+  <div class="wms-bars" role="img" aria-label="Сводная диаграмма">
+    {% set h1 = [draft_count * 15, 100]|min %}
+    {% set h2 = [low_stock|length * 20, 100]|min %}
+    {% set h3 = [negative|length * 25, 100]|min %}
+    <div class="wms-bars__item">
+      <div class="wms-bars__col" style="height: {{ h1 }}%;"></div>
+      <span class="wms-bars__label">Черновики</span>
+    </div>
+    <div class="wms-bars__item">
+      <div class="wms-bars__col" style="height: {{ [h2, 8]|max }}%;"></div>
+      <span class="wms-bars__label">Ниже мин.</span>
+    </div>
+    <div class="wms-bars__item">
+      <div class="wms-bars__col" style="height: {{ [h3, 8]|max }}%;"></div>
+      <span class="wms-bars__label">Минус</span>
+    </div>
+  </div>
+</div>
+
+<h2 class="wms-section-title">Низкий остаток (ниже минимума)</h2>
+<div class="wms-card card wms-table-wrap table-wrap">
+  {% if low_stock %}
+  <table class="wms-table data-table" id="tbl-low">
+    <thead>
+      <tr>
+        <th data-sort="str">Артикул</th>
+        <th data-sort="str">Наименование</th>
+        <th data-sort="num">Остаток</th>
+        <th data-sort="num">Мин.</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p, qty in low_stock %}
+      <tr>
+        <td>{{ p.sku }}</td>
+        <td>{{ p.name }}</td>
+        <td><span class="badge badge-warn wms-badge">{{ qty }}</span></td>
+        <td>{{ p.min_stock }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="wms-empty empty">Нет позиций ниже минимального остатка.</p>
+  {% endif %}
+</div>
+
+<h2 class="wms-section-title">Отрицательные остатки</h2>
+<div class="wms-card card wms-table-wrap table-wrap">
+  {% if negative %}
+  <table class="wms-table data-table" id="tbl-neg">
+    <thead>
+      <tr>
+        <th data-sort="str">Артикул</th>
+        <th data-sort="str">Наименование</th>
+        <th data-sort="num">Остаток</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p, qty in negative %}
+      <tr>
+        <td>{{ p.sku }}</td>
+        <td>{{ p.name }}</td>
+        <td><span class="badge badge-neg wms-badge">{{ qty }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="wms-empty empty">Отрицательных остатков нет.</p>
+  {% endif %}
+</div>
+{% endblock %}

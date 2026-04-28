@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Настройки{% endblock %}
+{% block content %}
+<h1>Настройки системы</h1>
+<div class="card">
+  <h2 style="margin-top:0;">Резервная копия базы данных</h2>
+  <p>Файл SQLite: <code>warehouse.db</code> в папке приложения.</p>
+  {% if db_exists %}
+  <p>Размер: {{ (db_size / 1024) | round(1) }} КБ</p>
+  <a class="btn btn-primary" href="{{ url_for('backup_db') }}">Скачать копию (warehouse.db)</a>
+  {% else %}
+  <p class="empty">База ещё не создана — выполните первый запуск приложения.</p>
+  {% endif %}
+</div>
+<div class="card">
+  <h2 style="margin-top:0;">Безопасность</h2>
+  <p class="hint">Смените пароль администратора в разделе «Пользователи».</p>
+</div>
+{% endblock %}

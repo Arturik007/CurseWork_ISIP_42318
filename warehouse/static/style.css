@@ -1,0 +1,1160 @@
+/**
+ * Склад WMS — production-ready стили
+ * BEM-префикс: wms- (Warehouse Management System)
+ * Совместимость: классы .btn, .card, .data-table и др. дублируют wms-* для текущих Jinja-шаблонов
+ */
+
+/* ═══════════════════════════════════════════════════════════════
+   Переменные темы
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-bg: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-text: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
+
+  /* Алиасы для inline-стилей в шаблонах */
+  --border: var(--color-border);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --wms-header-h: 64px;
+  --wms-sidebar-w: 240px;
+
+  color-scheme: light;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Сброс и базовая типографика
+   ═══════════════════════════════════════════════════════════════ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+h1,
+.wms-page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin: 0 0 var(--space-4);
+  color: var(--color-text);
+}
+
+h2,
+.wms-section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin: var(--space-6) 0 var(--space-3);
+  color: var(--color-text);
+}
+
+h1:first-child,
+.wms-page-title:first-child {
+  margin-top: 0;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+code {
+  font-family: "SF Mono", "Cascadia Code", "Consolas", monospace;
+  font-size: 0.875em;
+  background: var(--color-bg);
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+/* Моноширинный для артикулов в таблицах */
+.data-table td:first-child,
+.wms-table td:first-child {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Макет: шапка + боковое меню + контент + футер
+   Блок: wms-layout
+   ═══════════════════════════════════════════════════════════════ */
+.wms-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.wms-layout__header {
+  flex: 0 0 var(--wms-header-h);
+  height: var(--wms-header-h);
+}
+
+.wms-layout__body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.wms-layout__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ─── Шапка (wms-header) ─── */
+.wms-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  box-shadow: var(--shadow-sm);
+}
+
+.wms-header__menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--color-text);
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    box-shadow var(--duration-fast) var(--ease-default);
+}
+
+.wms-header__menu-btn:hover {
+  background: var(--color-bg);
+}
+
+.wms-header__menu-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.wms-header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.wms-header__brand:hover {
+  text-decoration: none;
+  color: var(--color-primary);
+}
+
+.wms-header__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.wms-header__title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: -0.025em;
+}
+
+.wms-header__spacer {
+  flex: 1;
+}
+
+.wms-header__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.wms-header__user-name {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.wms-header__user-role {
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+}
+
+/* ─── Боковое меню (wms-sidebar) ─── */
+.wms-sidebar {
+  flex: 0 0 var(--wms-sidebar-w);
+  width: var(--wms-sidebar-w);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-4) 0;
+  overflow-y: auto;
+}
+
+.wms-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+}
+
+/* Элемент: ссылка; модификатор: --active */
+.wms-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
+  min-height: 44px;
+}
+
+.wms-sidebar__link:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.wms-sidebar__link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.wms-sidebar__link--active,
+.wms-sidebar__link.is-active {
+  background: rgb(37 99 235 / 0.08);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.wms-sidebar__icon {
+  flex: 0 0 1.25rem;
+  width: 1.25rem;
+  text-align: center;
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+/* ─── Основная зона ─── */
+.wms-main {
+  flex: 1;
+  padding: var(--space-6);
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.wms-footer {
+  flex-shrink: 0;
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.wms-footer p {
+  margin: 0;
+}
+
+.wms-footer__ver {
+  font-family: "SF Mono", Consolas, monospace;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+/* Блок страницы (номенклатура, отчёты и т.д.) */
+.wms-page {
+  margin: 0;
+}
+
+/* Страница: опциональная обёртка */
+.wms-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   KPI-сетка и мини-диаграмма (CSS)
+   ═══════════════════════════════════════════════════════════════ */
+.wms-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+@media (max-width: 1023px) {
+  .wms-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .wms-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wms-kpi-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.wms-kpi-card__label {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-2);
+  font-weight: 500;
+}
+
+.wms-kpi-card__value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.wms-kpi-card__value--warning {
+  color: var(--color-warning);
+}
+
+.wms-kpi-card__value--danger {
+  color: var(--color-danger);
+}
+
+.wms-kpi-card__value--success {
+  color: var(--color-success);
+}
+
+/* Простые столбцы без JS */
+.wms-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  height: 120px;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.wms-bars__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.wms-bars__col {
+  width: 100%;
+  max-width: 48px;
+  margin: 0 auto;
+  background: linear-gradient(180deg, var(--color-primary) 0%, #93c5fd 100%);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  min-height: 4px;
+  transition: height var(--duration-normal) var(--ease-default);
+}
+
+.wms-bars__label {
+  font-size: 0.6875rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.wms-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Кнопки: wms-btn (+ .btn)
+   ═══════════════════════════════════════════════════════════════ */
+.wms-btn,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.2;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform var(--duration-fast) var(--ease-default),
+    box-shadow var(--duration-fast) var(--ease-default),
+    background var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default);
+}
+
+.wms-btn:hover,
+.btn:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.wms-btn:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.wms-btn:active,
+.btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.wms-btn--primary,
+.btn-primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.wms-btn--primary:hover,
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: #fff;
+}
+
+.wms-btn--secondary,
+.btn-secondary {
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.wms-btn--secondary:hover,
+.btn-secondary:hover {
+  background: rgb(37 99 235 / 0.06);
+  color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.wms-btn--danger,
+.btn-danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: var(--color-danger);
+}
+
+.wms-btn--danger:hover,
+.btn-danger:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.wms-btn--ghost,
+.wms-header__user .btn-secondary {
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  box-shadow: none;
+}
+
+.wms-btn--ghost:hover,
+.wms-header__user .btn-secondary:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Карточки: wms-card (+ .card)
+   ═══════════════════════════════════════════════════════════════ */
+.wms-card,
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-6);
+  margin-bottom: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.wms-card__title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-3);
+  letter-spacing: -0.02em;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Таблицы: wms-table (+ .data-table)
+   ═══════════════════════════════════════════════════════════════ */
+.table-wrap,
+.wms-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-lg);
+}
+
+.table-wrap.card,
+.wms-table-wrap.wms-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.table-wrap.card .data-table,
+.wms-table-wrap .wms-table {
+  margin: 0;
+}
+
+/* Область с прокруткой и липкой шапкой (отчёты) */
+.wms-scroll-table {
+  max-height: min(70vh, 560px);
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.wms-scroll-table .data-table thead th,
+.wms-scroll-table .wms-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--color-surface);
+  box-shadow: 0 1px 0 var(--color-border);
+}
+
+.data-table,
+.wms-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table th,
+.data-table td,
+.wms-table th,
+.wms-table td {
+  padding: var(--space-3) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.data-table thead th,
+.wms-table thead th {
+  background: #f9fafb;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.data-table thead th:hover,
+.wms-table thead th:hover {
+  background: #f3f4f6;
+}
+
+.data-table thead th[data-sort="none"],
+.wms-table thead th[data-sort="none"] {
+  cursor: default;
+}
+
+.data-table tbody tr:hover,
+.wms-table tbody tr:hover {
+  background: rgb(249 250 251 / 0.85);
+}
+
+.data-table tbody tr:nth-child(even):not(.wms-table__row--draft):not(.wms-table__row--cancelled),
+.wms-table tbody tr:nth-child(even):not(.wms-table__row--draft):not(.wms-table__row--cancelled) {
+  background: rgb(249 250 251 / 0.45);
+}
+
+.data-table tbody tr:last-child td,
+.wms-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table th.sorted-asc::after,
+.wms-table th.sorted-asc::after {
+  content: " ▲";
+  font-size: 0.65em;
+  opacity: 0.65;
+}
+
+.data-table th.sorted-desc::after,
+.wms-table th.sorted-desc::after {
+  content: " ▼";
+  font-size: 0.65em;
+  opacity: 0.65;
+}
+
+/* Статусы строк документов */
+.wms-table__row--draft {
+  background: #fffbeb !important;
+}
+
+.wms-table__row--draft:hover {
+  background: #fef3c7 !important;
+}
+
+.wms-table__row--cancelled td:not(:last-child) {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+}
+
+/* Итоговая строка (отчёты) */
+.wms-table tfoot tr,
+.data-table tfoot tr {
+  font-weight: 600;
+  background: #f3f4f6;
+}
+
+.wms-table tfoot td,
+.data-table tfoot td {
+  border-bottom: none;
+  border-top: 2px solid var(--color-border);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Формы: wms-field (+ .field)
+   ═══════════════════════════════════════════════════════════════ */
+.form-grid,
+.wms-form {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 32rem;
+}
+
+label.field,
+.wms-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+label.field input,
+label.field select,
+label.field textarea,
+.wms-field__control,
+.wms-field input,
+.wms-field select,
+.wms-field textarea {
+  padding: var(--space-3) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-surface);
+  min-height: 44px;
+  transition:
+    border-color var(--duration-fast) var(--ease-default),
+    box-shadow var(--duration-fast) var(--ease-default);
+}
+
+label.field textarea,
+.wms-field textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+label.field input:focus-visible,
+label.field select:focus-visible,
+label.field textarea:focus-visible,
+.wms-field__control:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgb(37 99 235 / 0.25);
+}
+
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"],
+.wms-field__control[aria-invalid="true"] {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 1px rgb(220 38 38 / 0.2);
+}
+
+.hint,
+.wms-hint {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.toolbar,
+.wms-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.toolbar select,
+.wms-toolbar select {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.toolbar select:focus-visible,
+.wms-toolbar select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.row-actions,
+.wms-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.filter-row {
+  margin-bottom: var(--space-3);
+}
+
+.filter-row input[type="search"] {
+  width: 100%;
+  max-width: 20rem;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Уведомления (flash)
+   ═══════════════════════════════════════════════════════════════ */
+.flash-list,
+.wms-flash-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-4);
+}
+
+.flash-list li,
+.wms-flash-list__item {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+  font-size: 0.9375rem;
+}
+
+.flash-success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.flash-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.flash-warning {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.flash-info {
+  background: #e0f2fe;
+  color: #075985;
+  border: 1px solid #bae6fd;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Бейджи статусов
+   ═══════════════════════════════════════════════════════════════ */
+.badge,
+.wms-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.badge-draft,
+.wms-badge--warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.badge-posted,
+.wms-badge--success {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.badge-cancelled,
+.wms-badge--muted {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.badge-warn {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.badge-neg {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Пустые состояния и загрузка
+   ═══════════════════════════════════════════════════════════════ */
+.empty,
+.wms-empty {
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.wms-empty--icon::before {
+  content: "📭";
+  display: block;
+  font-size: 2rem;
+  margin-bottom: var(--space-3);
+  opacity: 0.5;
+}
+
+[aria-busy="true"] {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+.wms-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: wms-spin 0.7s linear infinite;
+}
+
+@keyframes wms-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.wms-skeleton {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: wms-shimmer 1.2s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  min-height: 1rem;
+}
+
+@keyframes wms-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Страница входа
+   ═══════════════════════════════════════════════════════════════ */
+.login-page,
+.wms-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: linear-gradient(160deg, var(--color-bg) 0%, #e8eef5 100%);
+}
+
+.login-card,
+.wms-login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6);
+  box-shadow: var(--shadow-lg);
+}
+
+.login-card h1,
+.wms-login-card__title {
+  margin: 0 0 var(--space-6);
+  text-align: center;
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.wms-login-card__logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+.wms-login-card__logo span {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  font-size: 0.75rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   График (аналитика)
+   ═══════════════════════════════════════════════════════════════ */
+.chart-wrap {
+  position: relative;
+  margin-top: var(--space-4);
+  min-height: 220px;
+}
+
+.chart-wrap canvas {
+  width: 100% !important;
+  max-height: 220px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Адаптивность: планшет и мобильные
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 1023px) {
+  .wms-header__menu-btn {
+    display: inline-flex;
+  }
+
+  .wms-sidebar {
+    position: fixed;
+    top: var(--wms-header-h);
+    left: 0;
+    bottom: 0;
+    z-index: 250;
+    transform: translateX(-100%);
+    transition: transform var(--duration-normal) var(--ease-default);
+    box-shadow: none;
+  }
+
+  .wms-sidebar.is-open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .wms-layout__body {
+    position: relative;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wms-sidebar {
+    position: relative;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .wms-main {
+    padding: var(--space-4);
+  }
+
+  .toolbar .row-actions,
+  .wms-toolbar .wms-row-actions {
+    width: 100%;
+  }
+
+  .toolbar .btn,
+  .wms-toolbar .wms-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Печать
+   ═══════════════════════════════════════════════════════════════ */
+@media print {
+  .no-print,
+  .wms-header__menu-btn,
+  .wms-sidebar,
+  .wms-footer,
+  .flash-list {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .wms-layout__body {
+    display: block;
+  }
+
+  .wms-main {
+    max-width: none;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .card,
+  .wms-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  .data-table,
+  .wms-table {
+    font-size: 11pt;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Доступность: уменьшенная анимация
+   ═══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .wms-btn:hover,
+  .btn:hover {
+    transform: none;
+  }
+}

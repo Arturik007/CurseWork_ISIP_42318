@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Документы{% endblock %}
+{% block content %}
+<h1>Документы</h1>
+<div class="toolbar no-print">
+  {% if current_user.role in ('admin', 'keeper') %}
+  <a class="btn btn-primary" href="{{ url_for('documents_incoming_new') }}">Приходная</a>
+  <a class="btn btn-primary" href="{{ url_for('documents_outgoing_new') }}">Расходная</a>
+  {% endif %}
+  <form method="get" class="row-actions">
+    <select name="type">
+      <option value="">Все типы</option>
+      <option value="incoming" {{ 'selected' if f_type == 'incoming' else '' }}>Приход</option>
+      <option value="outgoing" {{ 'selected' if f_type == 'outgoing' else '' }}>Расход</option>
+    </select>
+    <select name="status">
+      <option value="">Все статусы</option>
+      <option value="draft" {{ 'selected' if f_status == 'draft' else '' }}>Черновик</option>
+      <option value="posted" {{ 'selected' if f_status == 'posted' else '' }}>Проведён</option>
+      <option value="cancelled" {{ 'selected' if f_status == 'cancelled' else '' }}>Отменён</option>
+    </select>
+    <button type="submit" class="btn btn-secondary">Применить</button>
+  </form>
+</div>
+<div class="filter-row no-print">
+  <input type="search" data-table-filter="tbl-docs" placeholder="Фильтр по таблице…">
+</div>
+<div class="wms-scroll-table">
+  <table class="wms-table data-table" id="tbl-docs">
+    <thead>
+      <tr>
+        <th data-sort="str">Номер</th>
+        <th data-sort="str">Тип</th>
+        <th data-sort="str">Дата</th>
+        <th data-sort="str">Статус</th>
+        <th data-sort="str">Автор</th>
+        <th data-sort="none">Просмотр</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in documents %}
+      <tr class="{% if d.status == 'draft' %}wms-table__row--draft{% elif d.status == 'cancelled' %}wms-table__row--cancelled{% endif %}">
+        <td>{{ d.number }}</td>
+        <td>{{ 'Приход' if d.doc_type == 'incoming' else 'Расход' }}</td>
+        <td>{{ d.doc_date }}</td>
+        <td>
+          {% if d.status == 'draft' %}<span class="badge badge-draft">Черновик</span>
+          {% elif d.status == 'posted' %}<span class="badge badge-posted">Проведён</span>
+          {% else %}<span class="badge badge-cancelled">Отменён</span>{% endif %}
+        </td>
+        <td>{{ d.author.username if d.author else '—' }}</td>
+        <td><a class="btn btn-secondary" href="{{ url_for('documents_view', did=d.id) }}">Открыть</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">Нет документов.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

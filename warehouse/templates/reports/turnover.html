@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Оборотная ведомость{% endblock %}
+{% block content %}
+<h1>Оборотная ведомость за период</h1>
+<form method="post" class="card form-grid" style="max-width:none;display:flex;flex-wrap:wrap;gap:1rem;align-items:end;">
+  <label class="field">
+    С даты
+    <input type="date" name="date_from" required value="{{ date_from.isoformat() if date_from else today_iso }}">
+  </label>
+  <label class="field">
+    По дату
+    <input type="date" name="date_to" required value="{{ date_to.isoformat() if date_to else today_iso }}">
+  </label>
+  <button type="submit" class="btn btn-primary">Сформировать</button>
+</form>
+
+{% if date_from and date_to %}
+<div class="toolbar no-print">
+  <a class="btn btn-secondary" href="{{ url_for('report_turnover_export', date_from=date_from.isoformat(), date_to=date_to.isoformat()) }}">Скачать CSV</a>
+</div>
+<div class="filter-row no-print">
+  <input type="search" data-table-filter="tbl-to" placeholder="Фильтр…">
+</div>
+<div class="wms-scroll-table">
+  <table class="wms-table data-table" id="tbl-to">
+    <thead>
+      <tr>
+        <th data-sort="str">Артикул</th>
+        <th data-sort="str">Наименование</th>
+        <th data-sort="num">Начало</th>
+        <th data-sort="num">Приход</th>
+        <th data-sort="num">Расход</th>
+        <th data-sort="num">Конец</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p, op, inc, out, cl in rows %}
+      <tr>
+        <td>{{ p.sku }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ op }}</td>
+        <td>{{ inc }}</td>
+        <td>{{ out }}</td>
+        <td>{{ cl }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+<p class="hint no-print"><a href="{{ url_for('report_index') }}">Все отчёты</a> · <a href="{{ url_for('report_stock_date') }}">Остатки на дату</a> · <a href="{{ url_for('report_movement') }}">Движение товара</a></p>
+{% endblock %}

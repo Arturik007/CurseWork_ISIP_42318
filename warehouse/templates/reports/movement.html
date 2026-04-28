@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Движение товара{% endblock %}
+{% block content %}
+<h1>Движение товара</h1>
+<form method="post" class="card form-grid" style="max-width:none;display:flex;flex-wrap:wrap;gap:1rem;align-items:end;">
+  <label class="field">
+    Товар
+    <select name="product_id" required>
+      <option value="">— выберите —</option>
+      {% for p in products %}
+      <option value="{{ p.id }}" {{ 'selected' if product and product.id == p.id else '' }}>{{ p.sku }} — {{ p.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit" class="btn btn-primary">Показать</button>
+</form>
+
+{% if product %}
+<h2>{{ product.sku }} — {{ product.name }}</h2>
+<div class="filter-row no-print">
+  <input type="search" data-table-filter="tbl-mov" placeholder="Фильтр…">
+</div>
+<div class="wms-scroll-table">
+  <table class="wms-table data-table" id="tbl-mov">
+    <thead>
+      <tr>
+        <th data-sort="str">Дата</th>
+        <th data-sort="str">Документ</th>
+        <th data-sort="num">Изменение</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in entries %}
+      <tr>
+        <td>{{ e.movement_date }}</td>
+        <td><a href="{{ url_for('documents_view', did=e.document_id) }}">{{ e.document.number }}</a></td>
+        <td>{% if e.quantity_signed > 0 %}+{% endif %}{{ e.quantity_signed }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" class="empty">Нет движений по этому товару.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+<p class="hint no-print"><a href="{{ url_for('report_index') }}">Все отчёты</a> · <a href="{{ url_for('report_stock_date') }}">Остатки на дату</a> · <a href="{{ url_for('report_turnover') }}">Оборотная ведомость</a></p>
+{% endblock %}
