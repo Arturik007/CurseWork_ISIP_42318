@@ -39,7 +39,7 @@
 
 * Зависимости описаны в файле warehouse\requirements.txt.
 * Для установки рекомендуется использовать виртуальное окружение (venv):
-  * Откройте PowerShell в корне проекта: c:\Users\ROMAN\Desktop\курсовая.
+  * Откройте PowerShell в корне проекта: c:\Users\Путь к папке
   * Введите команды:
 
     python -m venv .venv
