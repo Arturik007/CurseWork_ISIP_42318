@@ -166,6 +166,6 @@
   python app.py
 
   Браузер: http://127.0.0.1:8080
-  Вход: admin / admin
+  Вход: admin / 1234
 
 
