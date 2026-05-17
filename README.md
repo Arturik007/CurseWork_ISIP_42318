@@ -159,7 +159,7 @@
 10. КРАТКАЯ ШПАРГАЛКА (ВСЕ КОМАНДЫ ПОДРЯД)
 
 
-  cd C:\Users\ROMAN\Desktop\123\warehouse
+  cd C:123/121/131/1312/123412/421/412/42/14/214
   python -m venv venv
   .\venv\Scripts\Activate.ps1
   pip install -r requirements.txt
